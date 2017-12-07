@@ -42,7 +42,7 @@ int piece_strength(Piece *p) {
 
 int Board::heuristic() {
     int sign[2] = {1, -1};
-    int res;
+    int res = 0;
     std::vector<Move *> moves = getAllLegalMoves();
     if (moves.size() == 0) {
       if (current_player_ == BLACK) {

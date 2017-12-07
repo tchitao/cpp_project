@@ -25,17 +25,30 @@ bool BasicMove::doesCapture(Piece*) const {
 }
 
 std::string BasicMove::toAlgebraicNotation(int i) const {
-     // FILL THIS
-     return "";
+    std::string notation = "";
+    if (moved_->notation() != ' ') {
+      notation += moved_->notation();
+    }
+    switch (i) {
+      case 0:
+        notation += getFileRank(from_);
+        break;
+      case 1:
+        notation += getRank(from_);
+        break;
+      case 2:
+        notation += getFileLetter(from_);
+        break;
+      default:
+        break;
+    }
+    notation += getFileRank(to_);
+    return notation;
 }
 
 std::string BasicMove::toBasicNotation() const {
      return getFileRank(from_) + getFileRank(to_);
 }
-/*
-char BasicMove::moved_toChar() {
-  return moved_->toChar();
-}*/
 
 bool BasicMoveWithCapture::doesCapture(Piece *p) const {
     return (p == NULL) || (p == captured_);
@@ -45,6 +58,15 @@ BasicMoveWithCapture::BasicMoveWithCapture(Position from, Position to,
                                            Piece *moved, Piece *captured) :
    BasicMove(from, to, moved), captured_(captured) {
    assert(captured);
+}
+
+std::string BasicMoveWithCapture::toAlgebraicNotation(int i) const {
+    std::string notation = BasicMove::toAlgebraicNotation(i);
+    std::string target_string = notation.substr(notation.size()-2, 2);
+    notation[notation.size() - 2] = 'x';
+    notation[notation.size() - 1] = target_string[0];
+    notation += target_string[1];
+    return notation;
 }
 
 void BasicMoveWithCapture::perform(Board *b) const {

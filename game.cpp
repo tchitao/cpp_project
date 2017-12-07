@@ -59,6 +59,7 @@ bool Game::undo() {
       is_castling_related(&board_, this, move, -1);
       achieved_moves_.pop_back();
       move->unPerform(&board_);
+      board_.switch_player();
       return true;
     }
     std::cout << "There haven't been any moves done yet" << std::endl;

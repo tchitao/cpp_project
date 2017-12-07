@@ -18,16 +18,47 @@ bool isFinished(Game &g) {
     return g.getAllLegalMoves().size() == 0;
 }
 
+std::vector<int> is_repetetive(std::vector<std::string> moves_str) {
+    std::vector<int> rep_idx;
+    for (int i = 0; i < (int) moves_str.size(); i++) {
+      for (int j = i+1; j < (int) moves_str.size(); j++) {
+        if (moves_str[i] == moves_str[j]) {
+          rep_idx.push_back(i);
+          rep_idx.push_back(j);
+        }
+      }
+    }
+    return rep_idx;
+}
+
+std::vector<std::string> AlgebraicNotation(std::vector<Move *> moves) {
+    std::vector<std::string> moves_str;
+    for (auto m : moves) {
+      moves_str.push_back(m->toAlgebraicNotation(3));
+    }
+    std::vector<int> rep_idx = is_repetetive(moves_str);
+    int i_AlgebraicNotation = 2;
+    while (rep_idx.size() != 0) {
+      for (auto idx : rep_idx) {
+        moves_str[idx] = moves[idx]->toAlgebraicNotation(i_AlgebraicNotation);
+      }
+      rep_idx.clear();
+      rep_idx = is_repetetive(moves_str);
+      i_AlgebraicNotation--;
+    }
+    return moves_str;
+}
+
 // We need to parse a line, construct a Move, and make sure
 // the move is valid in the current Game.
 // What we do instead is to get all the valid moves, and see
 // if line is equal to the string representation of one of these moves.
 Move *parseAndValidate(Game &g, const std::string &line) {
     std::vector<Move *> moves = g.getAllLegalMoves();
-    for (auto x : moves) {
-      std::string s = x->toBasicNotation();
-      if (line == s) {
-        return x;
+    std::vector<std::string> moves_str = AlgebraicNotation(moves);
+    for (int i = 0; i < (int) moves_str.size(); i++) {
+      if (line == moves_str[i]) {
+        return moves[i];
       }
     }
     return NULL;
@@ -76,7 +107,7 @@ void process_openings(Game &g, std::string filename) {
       g.add_openings(t);
       file.close();
     } else {
-      std::cout << "Impossible to read the file bruh" << std::endl;
+      std::cout << "Impossible to read the file" << std::endl;
     }
     return;
 }
@@ -147,15 +178,16 @@ void evaluateCommand(Game &g, const std::string &line) {
             g.display();
         } else if (command == "?") {
             std::vector<Move *> moves = g.getAllLegalMoves();
-            for (auto x : moves) {
-                std::cout << x->toBasicNotation() << " ";
+            std::vector<std::string> moves_str = AlgebraicNotation(moves);
+            for (auto x : moves_str) {
+                std::cout << x << " ";
             }
             std::cout << std::endl;
         } else if (command == "help" || command == "h") {
             std::cout << "*move*: play *move* (type '?' for list of possible moves)" << std::endl;
             std::cout << "play s, p s, p: computer plays next move, s = strength" << std::endl;
             std::cout << "display, d: display current state of the game" << std::endl;
-            std::cout << "castling r, c r, c: make the move castling if possible, r in {s, b} s for small rook and b for big rook" << std::endl;
+            std::cout << "0-0, 0-0-0, 0-0: kingside castling, 0-0-0 queenside castling" << std::endl;
             std::cout << "captured, c: display all the captured pieces during the current game" << std::endl;
             std::cout << "undo, u: cancel last move" << std::endl;
             std::cout << "score, s: display the score of the game" << std::endl;
@@ -168,10 +200,11 @@ void evaluateCommand(Game &g, const std::string &line) {
             exit(0);
         } else if (command == "undo" || command == "u") {
             g.undo();
+            g.display();
         } else if (command == "openings" || command == "o") {
             std::string filename = commands[1];
             process_openings(g, filename);
-        } else if (command == "castling" || command == "c") {
+        } else if (command == "0-0" || command == "0-0-0") {
             std::string s_b_rook = commands[1];
             g.castling(s_b_rook);
         }  else if (command == "play" || command == "p") {
@@ -192,15 +225,43 @@ void evaluateCommand(Game &g, const std::string &line) {
                std::cout << "I didn't understand your move, try '?' for list of moves or 'help'" << std::endl;
             } else {
                g.play(m);
-               std::cout << m->toBasicNotation() << std::endl;
+               std::cout << m->toAlgebraicNotation(3) << std::endl;
                g.display();
             }
         }
     }
 
+std::vector<std::string> parsing_file() {
+  std::ifstream file("Akobian.pgn");
+  std::string line;
+  std::vector<std::string > game;
+  if (file) {
+    getline(file, line);
+    while (line.length() > 1) {
+      std::cout << line.substr(1, line.size()-3) << '\n';
+      getline(file, line);
+    }
+    getline(file, line);
+    while (line.substr(line.size()-4, 3) != "0-1" && line.substr(line.size()-4, 3) != "1-0" && line.substr(line.size()-8, 7) != "1/2-1/2") {
+      tokenize(line, game);
+      getline(file, line);
+    }
+    for (size_t i = 0; i < game.size(); i+=2) {
+      game[i] = game[i].substr(2, game.size()-2);
+    }
+  } else {
+    std::cout << "Make sure that the selected file is a .pgn one" << std::endl;
+  }
+  return game;
+}
+
 int main() {
     Game g;
     std::string line;
+    std::vector<std::string> gameMoves = parsing_file();
+    for (auto m : gameMoves) {
+      evaluateCommand(g, m);
+    }
     while(true) {
         std::cout << "> ";
         getline(std::cin, line);

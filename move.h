@@ -85,6 +85,8 @@ class BasicMoveWithCapture : public BasicMove {
 public:
     BasicMoveWithCapture(Position from, Position to, Piece *moved, Piece *captured);
 
+    std::string toAlgebraicNotation(int i) const;
+
     void unPerform(Board *b) const;
 
     void perform(Board *b) const;
