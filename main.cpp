@@ -32,6 +32,10 @@ std::vector<int> is_repetetive(std::vector<std::string> moves_str) {
 }
 
 std::vector<std::string> AlgebraicNotation(std::vector<Move *> moves) {
+    """
+    returns a vector of the Algebraic Notation of all the moves in the vector given
+    as parameter
+    """
     std::vector<std::string> moves_str;
     for (auto m : moves) {
       moves_str.push_back(m->toAlgebraicNotation(3));
@@ -74,8 +78,10 @@ void tokenize(const std::string &s, std::vector<std::string> &tokens) {
     }
 }
 
-//Process the openings given in the file
 void process_openings(Game &g, std::string filename) {
+    """
+    Process the openings given in the file
+    """
     std::ifstream file(filename);
     if (file) {
       std::string line;
@@ -95,16 +101,16 @@ void process_openings(Game &g, std::string filename) {
                   std::cout << "The sequence of moves in the file is unvalid, try '?' for list of moves or 'help'" << std::endl;
                   return;
               }
-              g.perform_temp();
+              g.switchColor();
           }
           t->addOpening(moves, 0);
           if (Nb_moves % 2 == 1) {
-            g.unPerform_temp();
+            g.switchColor();
           }
           moves_str.clear();
           moves.clear();
       }
-      g.add_openings(t);
+      g.setOpenings(t);
       file.close();
     } else {
       std::cout << "Impossible to read the file" << std::endl;
@@ -121,6 +127,10 @@ void print_vector(std::vector<Move *> v) {
 }
 
 void find_wanted_tree(std::vector<Move *> legalmoves, Tree *t, Move **move_to_do, Tree **t_wanted) {
+    """
+    find a legal move that's in the tree then saves its tree in t_wanted, and
+    saves this move in move_to_do
+    """
     std::vector<Move *> allmoves = t->allMoves();
     if (allmoves.size() == 0 || *move_to_do != NULL) {
       return;
@@ -201,7 +211,7 @@ void evaluateCommand(Game &g, const std::string &line) {
         } else if (command == "undo" || command == "u") {
             g.undo();
             g.display();
-        } else if (command == "openings" || command == "o") {
+        } else if (command == "open" || command == "o") {
             std::string filename = commands[1];
             process_openings(g, filename);
         } else if (command == "play" || command == "p") {
@@ -219,9 +229,11 @@ void evaluateCommand(Game &g, const std::string &line) {
         } else {
             Move *m = parseAndValidate(g, line);
             if (m == NULL) {
+               // Check if the line is in one of the following formats for example:
+               // {xd8Q, Rd3+, a0N}
+               // which basically means: is it in check (+), oris it Pawn Promotion
                std::string last_member = line.substr(line.size()-1, 1);
                if (last_member == "+") {
-                    std::cout << "Check boi" << '\n';
                     m = parseAndValidate(g, line.substr(0, line.size()-1));
                     if (m != NULL) {
                       g.play(m);

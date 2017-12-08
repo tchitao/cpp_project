@@ -37,11 +37,7 @@ public:
 
     void promote_pawn(Move *, std::string);
 
-    void perform_temp();
-
-    void unPerform_temp();
-
-    void add_openings(Tree *);
+    void switchColor();
 
     Tree *getOpenings();
 

@@ -56,6 +56,9 @@ std::vector<Move *> Game::getAllLegalMoves() {
 }
 
 Move *greedy_move(Board b) {
+    """
+    Returns the moves with the most favorables heuristic value
+    """
     std::vector<Move *> moves = b.getAllLegalMoves();
     moves[0]->perform(&b);
     int min_strength = b.heuristic();
@@ -84,6 +87,10 @@ Move *greedy_move(Board b) {
 }
 
 int minimax(Board b, int depth, int color) {
+    """
+    returns the best heuristic value by maximizing the H value in this turn and
+    minimizing it in the opponent's turn
+    """
     std::vector<Move *> moves = b.getAllLegalMoves();
     if (depth == 0 || moves.size() == 1) {
       return b.heuristic();
@@ -108,6 +115,9 @@ int minimax(Board b, int depth, int color) {
 }
 
 Move *minimax_move(Board b, int strength) {
+    """
+    returns the move with the best minimax() value by performing all of the moves
+    """
     std::vector<Move *> moves = b.getAllLegalMoves();
     int color = (int) b.getPlayer();
     moves[0]->perform(&b);
@@ -154,16 +164,8 @@ Move *Game::computerSuggestion(int strength) {
     return NULL;
 }
 
-void Game::perform_temp() {
+void Game::switchColor() {
     board_.switch_player();;
-}
-
-void Game::unPerform_temp() {
-    board_.switch_player();;
-}
-
-void Game::add_openings(Tree *t) {
-    openings_ = t;
 }
 
 Tree *Game::getOpenings() {

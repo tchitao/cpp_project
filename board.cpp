@@ -10,6 +10,9 @@
 #include <string>
 
 int pawn_strength(Piece *p) {
+  """
+  returns the weight of the pawn depending on its position
+  """
   Color color = p->getColor();
   int step[2] = {1, -1};
   Position pos = p->getPosition();
@@ -31,6 +34,9 @@ int pawn_strength(Piece *p) {
 }
 
 int piece_strength(Piece *p) {
+    """
+    returns the weight of the piece depending on its position
+    """
     Position pos = p->getPosition();
     if ((pos.first == 3 || pos.first == 4) && (pos.second == 3 || pos.second == 4)) {
       return 2;
@@ -41,6 +47,10 @@ int piece_strength(Piece *p) {
 }
 
 int Board::heuristic() {
+    """
+    calculates the heuristic value at this point of the game
+    as explained in the report
+    """
     int sign[2] = {1, -1};
     int res = 0;
     std::vector<Move *> moves = getAllLegalMoves();
@@ -212,6 +222,10 @@ void Board::display() {
 }
 
 int idx_inside_cap(std::vector< std::pair<int, char> > cap, char p) {
+    """
+    returns the index of the pair that contains the char p in the vector of pair
+    if not found returns -1
+    """
     if (cap.size() == 0) {
       return -1;
     }
@@ -224,6 +238,12 @@ int idx_inside_cap(std::vector< std::pair<int, char> > cap, char p) {
 }
 
 std::string found_pieces(std::pair<int, char> p) {
+    """
+    return a string with the number of pieces and its type
+
+    Example:
+    found_pieces({2, 'k'}) gives us '2 Rooks'
+    """
     std::string res = std::to_string(p.first);
     switch (p.second) {
       case 'p' :
@@ -260,6 +280,18 @@ std::string found_pieces(std::pair<int, char> p) {
 }
 
 void Board::displayCaptured(){
+    """
+    displays the captured pieces in this form for example:
+
+    The captured white pieces are:
+    6 Pawns
+    1 Rook
+    2 Knights
+    The captured black pieces are:
+    4 Pawns
+    2 Bishops
+    1 Knight
+    """
     std::vector< std::string> col(2);
     col[0] = "black";
     col[1] = "white";
@@ -371,6 +403,9 @@ Move *Board::get_last_move() {
 }
 
 void Board::promote_pawn_b(Move *m, std::string last_member) {
+    """
+    Removes the pawn to be promoted and creating the wanted piece
+    """
     Position pos = m->getPosition_promotion();
     int line[2] = {0, 7};
     this->removePiece(pos);
@@ -393,21 +428,30 @@ void Board::promote_pawn_b(Move *m, std::string last_member) {
 }
 
 bool Board::castling_permitted(Piece *moved_k_, Piece *moved_r_, int moves_todo, int line) {
+    """
+    Checks if the castling move is permitted
+    """
 
     int dir = (moves_todo == 2)? 1 : -1;
+
     if ((moved_r_ == NULL) || (moved_k_ == NULL)) {
       return false;
     }
     if ((moved_r_->notation() != 'R') || (moved_k_->notation() != 'K')) {
       return false;
     }
-
+    //Is the king in check
+    if ((*this).isInCheck()) {
+      return false;
+    }
+    //Are the pieces between the king and rook empty ?
     for (int i = 1; i < moves_todo+1; i++) {
       if (board_[line][4+i] != NULL) {
         return false;
       }
     }
-
+    //Check if the king doesn't pass through or end up in a square that is
+    // under attack by an enemy piece
     BasicMove move_1 = BasicMove({line, 4}, {line, 4 + dir}, moved_k_);
     if (!((*this).isLegal(&move_1))) {
       return false;
@@ -417,7 +461,7 @@ bool Board::castling_permitted(Piece *moved_k_, Piece *moved_r_, int moves_todo,
       if (!((*this).isLegal(&move_2))) {
         move_1.unPerform(this);
         return false;
-      } else if (dir == 3) {
+      } else if (moves_todo == 3) {
         move_2.perform(this);
         BasicMove move_3 = BasicMove({line, 4 + 2*dir}, {line, 4 + 3*dir}, moved_k_);
         if (!((*this).isLegal(&move_3))) {

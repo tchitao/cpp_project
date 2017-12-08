@@ -53,6 +53,7 @@ public:
     // if p != NULL, returns true iff  p is captured
     virtual bool doesCapture(Piece *p) const = 0;
 
+    //Returns the to_ position  of the move in question
     virtual Position getPosition_promotion() const = 0;
 
 
