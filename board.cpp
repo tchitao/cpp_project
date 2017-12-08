@@ -372,8 +372,14 @@ Move *Board::get_last_move() {
 
 void Board::promote_pawn_b(Move *m, std::string last_member) {
     Position pos = m->getPosition_promotion();
+    int line[2] = {0, 7};
     this->removePiece(pos);
     this->switch_player();
+    if (pos.first != line[current_player_]) {
+      this->switch_player();
+      return;
+    }
+
     if (last_member == "B") {
         board_[pos.first][pos.second] = addPiece(new Bishop({pos.first, pos.second}, current_player_));
     } else if (last_member == "R") {
