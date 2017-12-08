@@ -108,6 +108,14 @@ public:
     void filter(Position start, const std::vector<Position> &rel, Color pl,
                 bool onlyIfCapture, std::vector<Position> &res) const;
 
+    bool castling_permitted(Piece *, Piece *, int, int);
+
+    void promote_pawn_b(Move *, std::string);
+
+    void add_to_achieved_moves(Move *);
+
+    Move *get_last_move();
+
 
 private:
    Piece *addPiece(Piece *);
@@ -118,6 +126,7 @@ private:
    Piece *king_[2];
    std::vector<Piece *> pieces_[2];
    Color current_player_ = WHITE;
+   std::vector<Move *> achieved_moves_;
 };
 
 #endif // BOARD_H_

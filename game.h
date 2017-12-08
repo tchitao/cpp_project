@@ -35,9 +35,7 @@ public:
 
     void play(Move *);
 
-    void castling(std::string);
-
-    void setMove(Move *move);
+    void promote_pawn(Move *, std::string);
 
     void perform_temp();
 
@@ -49,17 +47,11 @@ public:
 
     void setOpenings(Tree *);
 
-    void setNbmoves_small(int, int);
-
-    void setNbmoves_big(int , int);
 
 private:
 
     Board board_;
     Tree *openings_ = NULL;
-    std::vector<Move *> achieved_moves_;
-    int Nbmoves_small_[2] = {0, 0};
-    int Nbmoves_big_[2] = {0, 0};
 };
 
 #endif // GAME_H_

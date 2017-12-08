@@ -304,12 +304,21 @@ std::vector<Move *> Board::getAllMoves() const {
 }
 
 std::vector<Move *> Board::getAllLegalMoves() {
+        int line[2] = {7, 0};
+        int color = (int) current_player_;
         std::vector<Move *> moves = getAllMoves();
         std::vector<Move *> res;
         for (auto x : moves) {
             if (isLegal(x)) {
                 res.push_back(x);
            }
+        }
+        if ((*this).castling_permitted(board_[line[color]][4], board_[line[color]][7], 2, line[color])) {
+            Castling *move = new Castling(board_[line[color]][4], board_[line[color]][7]);
+            res.push_back(move);
+        } else if ((*this).castling_permitted(board_[line[color]][4], board_[line[color]][0], 3, line[color])) {
+            Castling *move = new Castling(board_[line[color]][4], board_[line[color]][0]);
+            res.push_back(move);
         }
         return res;
 }
@@ -346,4 +355,74 @@ bool Board::isInCheck(Color p) const {
         }
     }
     return false;
+}
+
+void Board::add_to_achieved_moves(Move *move) {
+    achieved_moves_.push_back(move);
+}
+
+Move *Board::get_last_move() {
+  Move *move = NULL;
+  if (achieved_moves_.size() != 0) {
+    move = achieved_moves_.back();
+    achieved_moves_.pop_back();
+  }
+  return move;
+}
+
+void Board::promote_pawn_b(Move *m, std::string last_member) {
+    Position pos = m->getPosition_promotion();
+    this->removePiece(pos);
+    this->switch_player();
+    if (last_member == "B") {
+        board_[pos.first][pos.second] = addPiece(new Bishop({pos.first, pos.second}, current_player_));
+    } else if (last_member == "R") {
+      board_[pos.first][pos.second] = addPiece(new Rook({pos.first, pos.second}, current_player_));
+    } else if (last_member == "Q") {
+      board_[pos.first][pos.second] = addPiece(new Queen({pos.first, pos.second}, current_player_));
+    } else {
+      board_[pos.first][pos.second] = addPiece(new Knight({pos.first, pos.second}, current_player_));
+    }
+    this->switch_player();
+}
+
+bool Board::castling_permitted(Piece *moved_k_, Piece *moved_r_, int moves_todo, int line) {
+
+    int dir = (moves_todo == 2)? 1 : -1;
+    if ((moved_r_ == NULL) || (moved_k_ == NULL)) {
+      return false;
+    }
+    if ((moved_r_->notation() != 'R') || (moved_k_->notation() != 'K')) {
+      return false;
+    }
+
+    for (int i = 1; i < moves_todo+1; i++) {
+      if (board_[line][4+i] != NULL) {
+        return false;
+      }
+    }
+
+    BasicMove move_1 = BasicMove({line, 4}, {line, 4 + dir}, moved_k_);
+    if (!((*this).isLegal(&move_1))) {
+      return false;
+    } else {
+      move_1.perform(this);
+      BasicMove move_2 = BasicMove({line, 4 + dir}, {line, 4 + 2*dir}, moved_k_);
+      if (!((*this).isLegal(&move_2))) {
+        move_1.unPerform(this);
+        return false;
+      } else if (dir == 3) {
+        move_2.perform(this);
+        BasicMove move_3 = BasicMove({line, 4 + 2*dir}, {line, 4 + 3*dir}, moved_k_);
+        if (!((*this).isLegal(&move_3))) {
+          move_2.unPerform(this);
+          move_1.unPerform(this);
+          return false;
+        }
+        move_2.unPerform(this);
+      }
+      move_1.unPerform(this);
+    }
+
+    return true;
 }

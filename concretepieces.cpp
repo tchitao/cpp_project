@@ -71,17 +71,6 @@ void King::getMoves(const Board &g, std::vector<Move *> &res) const {
         g.reachablePositionsAlongStraightLine(pos, di[i], dj[i], max,  getColor(), true, poss);
     }
     positionsToMoves(g, pos, poss, res);
-    /*
-    Color color = getColor();
-    int idx_col[] = {7, 0};
-    for (int i = 0; i < 2; i++) {
-      Rook p = Rook({idx_col[color], idx_col[i]}, color);
-      Castling *move = Castling(pos, *this, {idx_col[color], idx_col[i]} , p);
-      if (move->castling_permitted(g, color)) {
-        res.push_back(move);
-      }
-    }
-    */
 }
 
 char King::toChar() const {
@@ -122,7 +111,7 @@ void Queen::getMoves(const Board &g, std::vector<Move *> &res) const {
     int di[] = {-1, 1, 1, -1, -1, 0, 1, 0};
     int dj[] = {-1, 1, -1, 1, 0, -1, 0, 1};
     int max = 8;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 8; i++) {
         g.reachablePositionsAlongStraightLine(pos, di[i], dj[i], max, getColor(), true, poss);
     }
     positionsToMoves(g, pos, poss, res);
@@ -145,7 +134,7 @@ void Knight::getMoves(const Board &g, std::vector<Move *> &res) const {
     int di[] = {2, 1, 2, -1, -2, 1, -2, -1};
     int dj[] = {1, 2, -1, 2, 1, -2, -1, -2};
     int max = 1;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 8; i++) {
         g.reachablePositionsAlongStraightLine(pos, di[i], dj[i], max, getColor(), true, poss);
     }
     positionsToMoves(g, pos, poss, res);

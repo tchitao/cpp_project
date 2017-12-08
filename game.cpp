@@ -15,49 +15,17 @@
 
 Game::Game() { }
 
-void Game::setNbmoves_small(int color, int do_undo) {
-    Nbmoves_small_[color] += do_undo;
-}
-
-void Game::setNbmoves_big(int color, int do_undo) {
-    Nbmoves_big_[color] += do_undo;
-}
-
-void is_castling_related(Board *b,Game *g, Move *m, int do_undo) {
-  int color = (int) b->getPlayer();
-  std::string moved_piece = m->toBasicNotation().substr(0, 2);
-  if (moved_piece == "e1") {
-    g->setNbmoves_small(color, do_undo);
-    g->setNbmoves_big(color, do_undo);
-  }
-  if (color == WHITE) {
-    if (moved_piece == "h1") {
-      g->setNbmoves_small(color, do_undo);
-    } else if (moved_piece == "a1") {
-      g->setNbmoves_big(color, do_undo);
-    }
-  } else {
-    if (moved_piece == "h8") {
-      g->setNbmoves_small(color, do_undo);
-    } else if (moved_piece == "a8") {
-      g->setNbmoves_big(color, do_undo);
-    }
-  }
-}
 
 void Game::play(Move *m) {
     assert(m != NULL);
     m->perform(&board_);
-    is_castling_related(&board_, this, m, 1);
-    (*this).setMove(m);
+    board_.add_to_achieved_moves(m);
     board_.switch_player();
 }
 
 bool Game::undo() {
-    if (achieved_moves_.size() != 0) {
-      Move *move = achieved_moves_.back();
-      is_castling_related(&board_, this, move, -1);
-      achieved_moves_.pop_back();
+    Move *move = board_.get_last_move();
+    if (move != NULL) {
       move->unPerform(&board_);
       board_.switch_player();
       return true;
@@ -66,11 +34,6 @@ bool Game::undo() {
     return false;
 }
 
-void Game::castling(std::string s_b_rook) {
-    if (s_b_rook == "s" || s_b_rook == "small") {
-      //TO DO
-    }
-}
 
 void Game::display() {
     board_.display();
@@ -78,6 +41,10 @@ void Game::display() {
 
 void Game::displayCaptured() {
     board_.displayCaptured();
+}
+
+void Game::promote_pawn(Move *m, std::string last_member) {
+    board_.promote_pawn_b(m, last_member);
 }
 
 void Game::display_heuristic() {
@@ -185,10 +152,6 @@ Move *Game::computerSuggestion(int strength) {
         break;
     }
     return NULL;
-}
-
-void Game::setMove(Move *move) {
-  achieved_moves_.push_back(move);
 }
 
 void Game::perform_temp() {

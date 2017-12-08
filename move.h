@@ -53,8 +53,12 @@ public:
     // if p != NULL, returns true iff  p is captured
     virtual bool doesCapture(Piece *p) const = 0;
 
+    virtual Position getPosition_promotion() const = 0;
+
+
 protected:
     Color player_;
+
 };
 
 
@@ -73,11 +77,14 @@ public:
 
   virtual bool doesCapture(Piece*) const;
 
+  virtual Position getPosition_promotion() const;
+
 
 private:
   Position from_;
   Position to_;
   Piece *moved_;
+
 };
 
 class BasicMoveWithCapture : public BasicMove {
@@ -93,28 +100,36 @@ public:
 
     bool doesCapture(Piece *p) const;
 
+    virtual Position getPosition_promotion() const;
+
 private:
     Piece *captured_;
-    //Piece *moved_;
 };
-/*
+
+
 class Castling : public Move {
 
 public:
-    Castling(Position pos_k, Position pos_r, Piece *moved_k, Piece *moved_r);
+    Castling(Piece *moved_k, Piece *moved_r);
+
+    std::string toAlgebraicNotation(int i) const;
+
+    std::string toBasicNotation() const;
 
     void unPerform(Board *b) const;
 
     void perform(Board *b) const;
 
-    int castling_permitted(Board *b, Color col);
+    bool doesCapture(Piece*) const;
+
+    virtual Position getPosition_promotion() const;
+
 
 private:
-    Position pos_k_;
-    Position pos_r_;
+
     Piece *moved_k_;
     Piece *moved_r_;
 
 };
-*/
+
 #endif // MOVE_H_

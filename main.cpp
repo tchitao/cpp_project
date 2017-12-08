@@ -137,7 +137,7 @@ void find_wanted_tree(std::vector<Move *> legalmoves, Tree *t, Move **move_to_do
       find_wanted_tree(legalmoves, t_child, move_to_do, t_wanted);
     }
 }
-
+/* expression */
 // Asks the computer what next move to play.
 void computerPlay(Game &g, int strength) {
     if (isFinished(g)) {
@@ -187,7 +187,7 @@ void evaluateCommand(Game &g, const std::string &line) {
             std::cout << "*move*: play *move* (type '?' for list of possible moves)" << std::endl;
             std::cout << "play s, p s, p: computer plays next move, s = strength" << std::endl;
             std::cout << "display, d: display current state of the game" << std::endl;
-            std::cout << "0-0, 0-0-0, 0-0: kingside castling, 0-0-0 queenside castling" << std::endl;
+            std::cout << "O-O, O-O-O, O-O: kingside castling, O-O-O queenside castling" << std::endl;
             std::cout << "captured, c: display all the captured pieces during the current game" << std::endl;
             std::cout << "undo, u: cancel last move" << std::endl;
             std::cout << "score, s: display the score of the game" << std::endl;
@@ -204,10 +204,7 @@ void evaluateCommand(Game &g, const std::string &line) {
         } else if (command == "openings" || command == "o") {
             std::string filename = commands[1];
             process_openings(g, filename);
-        } else if (command == "0-0" || command == "0-0-0") {
-            std::string s_b_rook = commands[1];
-            g.castling(s_b_rook);
-        }  else if (command == "play" || command == "p") {
+        } else if (command == "play" || command == "p") {
             int strength = std::stoi(commands[1]);
             if (strength < 0 || strength > 5) {
               std::cout << "The strength should be between 0 and 5" << '\n';
@@ -222,6 +219,26 @@ void evaluateCommand(Game &g, const std::string &line) {
         } else {
             Move *m = parseAndValidate(g, line);
             if (m == NULL) {
+               std::string last_member = line.substr(line.size()-1, 1);
+               if (last_member == "+") {
+                    std::cout << "Check boi" << '\n';
+                    m = parseAndValidate(g, line.substr(0, line.size()-1));
+                    if (m != NULL) {
+                      g.play(m);
+                      std::cout << m->toAlgebraicNotation(3) << std::endl;
+                      g.display();
+                      return;
+                    }
+               } else if (last_member == "B" || last_member == "R" || last_member == "Q" || last_member == "N") {
+                    m = parseAndValidate(g, line.substr(0, line.size()-1));
+                    if (m != NULL) {
+                      g.play(m);
+                      std::cout << line << std::endl;
+                      g.promote_pawn(m, last_member);
+                      g.display();
+                      return;
+                    }
+               }
                std::cout << "I didn't understand your move, try '?' for list of moves or 'help'" << std::endl;
             } else {
                g.play(m);
@@ -246,9 +263,14 @@ std::vector<std::string> parsing_file() {
       tokenize(line, game);
       getline(file, line);
     }
-    for (size_t i = 0; i < game.size(); i+=2) {
+    tokenize(line, game);
+    for (size_t i = 0; i < 17; i+=2) {
       game[i] = game[i].substr(2, game.size()-2);
     }
+    for (size_t i = 18; i < game.size(); i+=2) {
+      game[i] = game[i].substr(3, game.size()-3);
+    }
+    game.pop_back();
   } else {
     std::cout << "Make sure that the selected file is a .pgn one" << std::endl;
   }
@@ -260,6 +282,7 @@ int main() {
     std::string line;
     std::vector<std::string> gameMoves = parsing_file();
     for (auto m : gameMoves) {
+      std::cout << m << '\n';
       evaluateCommand(g, m);
     }
     while(true) {

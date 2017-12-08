@@ -9,12 +9,13 @@
 [BlackElo ""]
 [ECO "C02"]
 
-1.e4 e6 2.d4 d5 3.e5 c5 4.c3 Nc6 5.Nf3 Qb6 6.Bd3 Bd7 7.O-O cxd4 8.cxd4 Nxd4
-9.Nxd4 Qxd4 10.Nc3 Qxe5 11.Re1 Qb8 12.Nxd5 Bd6 13.h3 Ne7 14.Nxe7 Bxe7 15.Qg4 O-O
-16.Bh6 Bf6 17.Qe4 g6 18.Bxf8 Bc6 19.Qb4 Qxf8 20.Qxf8+ Kxf8 21.Be4 Bxb2 22.Rab1 Bd4
-23.Bxc6 bxc6 24.Red1 Rd8 25.Kf1 Ke8 26.Ke2 Rd7 27.Kf3 c5 28.g4 Ke7 29.Rb8 e5
-30.Rh8 e4+ 31.Kxe4 Bxh8 32.Rxd7+ Kxd7 33.Kd5 Kc7 34.f4 Kb6 35.Kc4 Kc6 36.h4 f5
-37.gxf5 gxf5 38.Kd3 Kd5 39.h5 c4+  0-1
+1.e4 e6 2.d4 d5 3.Nc3 Bb4 4.e5 c5 5.Bd2 Ne7 6.Nb5 Bxd2+ 7.Qxd2 O-O 8.Nf3 Bd7
+9.c3 Bxb5 10.Bxb5 Qb6 11.Bd3 xd4 12.xd4 Nbc6 13.O-O Nb4 14.Bb1 h6 15.a3 Nbc6
+16.Qd3 g6 17.Qd2 Kh7 18.h4 Nf5 19.Rd1 Na5 20.Ra2 Nb3 21.Qd3 Rac8 22.g4 Nfxd4
+23.Nxd4 Nxd4 24.Qxd4 Qxd4 25.Bxg6+ xg6 26.Rxd4 Rc2 27.f4 Rc4 28.Rxc4 xc4
+29.b3 Rxf4 30.xc4 Rxg4+ 31.Kf2 Rxh4 32.Ra1 Rxc4 33.Rd1 Rc7 34.Rd6 Re7 35.Ke3 g5
+36.Kf3 Kg6 37.Ke4 h5 38.a4 h4 39.Rd8 Kh5 40.Rh8+ Kg4 41.Ke3 Kg3 42.Ke2 h3
+43.Kf1 g4 44.Rh6 h2 45.Rh5 Rf7+ 46.Ke2 Kg2  0-1
 [Event "Wch U10"]
 [Site "Bratislava"]
 [Date "1993.??.??"]

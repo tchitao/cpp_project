@@ -50,6 +50,10 @@ std::string BasicMove::toBasicNotation() const {
      return getFileRank(from_) + getFileRank(to_);
 }
 
+Position BasicMove::getPosition_promotion() const {
+    return to_;
+}
+
 bool BasicMoveWithCapture::doesCapture(Piece *p) const {
     return (p == NULL) || (p == captured_);
 }
@@ -80,84 +84,62 @@ void BasicMoveWithCapture::unPerform(Board *b) const {
     captured_->setCaptured(false);
 }
 
+Position BasicMoveWithCapture::getPosition_promotion() const {
+    return BasicMove::getPosition_promotion();
+}
 
-/*
-Castling::Castling(Position pos_k, Position pos_r, Piece *moved_k, Piece *moved_r) :
-    pos_k_(pos_k), pos_r_(pos_r), moved_k_(moved_k), moved_r_(moved_r) {
+Castling::Castling(Piece *moved_k, Piece *moved_r) : moved_k_(moved_k), moved_r_(moved_r) {
 
       assert(moved_k);
       assert(moved_r);
     }
 
 void Castling::perform(Board *b) const {
-    Color col = moved_k_->getColor();
-    int dir = this->castling_permitted(b, col);
-    if (dir != 0) {
-      b->setPiece({pos_k_.first, pos_k_.second + 2*dir}, moved_k_);
-      moved_k_->setPosition({pos_k_.first, pos_k_.second + 2*dir});
-      b->removePiece(pos_k_);
-      Position pos_k_new = moved_k_->getPosition();
-      b->setPiece({pos_r_.first, pos_k_new.second - dir}, moved_r_);
-      moved_r_->setPosition({pos_k_.first, pos_k_new.second - dir});
-      b->removePiece(pos_r_);
-    } else {
-      std::cout << "The castling cannot be performed" << '\n' << std::endl;
-    }
+    Position pos_k_ = moved_k_->getPosition();
+    Position pos_r_ = moved_r_->getPosition();
+    int dir = ((pos_r_.second - pos_k_.second) < 0)? -1 : 1;
+    b->setPiece({pos_k_.first, pos_k_.second + 2*dir}, moved_k_);
+    moved_k_->setPosition({pos_k_.first, pos_k_.second + 2*dir});
+    b->removePiece(pos_k_);
+    Position pos_k_new = moved_k_->getPosition();
+    b->setPiece({pos_r_.first, pos_k_new.second - dir}, moved_r_);
+    moved_r_->setPosition({pos_k_.first, pos_k_new.second - dir});
+    b->removePiece(pos_r_);
 }
 
 void Castling::unPerform(Board *b) const {
-    Color col = moved_k_->getColor();
-    int dir = castling_permitted(b, col);
-    b->setPiece(pos_k_, moved_k_);
-    moved_k_->setPosition(pos_k_);
-    b->removePiece({pos_k_.first, pos_k_.second + 2*dir});
-    Position pos_k_new = moved_k_->getPosition();
-    b->setPiece(pos_r_, moved_r_);
-    moved_r_->setPosition(pos_r_);
-    b->removePiece({pos_k_.first, pos_k_new.second - dir});
+    Position pos_k_ = moved_k_->getPosition();
+    Position pos_r_ = moved_r_->getPosition();
+    int dir = ((pos_r_.second - pos_k_.second) < 0)? -1 : 1;
+    int pos_r_new = (pos_r_.second == 3)? 0 : 7;
+    b->setPiece({pos_k_.first, 4}, moved_k_);
+    moved_k_->setPosition({pos_k_.first, pos_k_.second + 2*dir});
+    b->removePiece(pos_k_);
+    b->setPiece({pos_k_.first, pos_r_new}, moved_r_);
+    moved_r_->setPosition({pos_k_.first, pos_r_new});
+    b->removePiece(pos_r_);
 }
 
-int Castling::castling_permitted(Board *b, Color col) {
-    int dir;
-    unsigned int min;
-    unsigned int max;
-    if (pos_r_.second < pos_k_.second) {
-      min = pos_r_.second;
-      max = pos_k_.second;
-      dir = -1;
-    } else {
-      min = pos_k_.second;
-      max = pos_r_.second;
-      dir = 1;
-    }
-    if ((moved_r_->toChar() == 'R' && col == BLACK) || (moved_r_->toChar() == 'r' && col == WHITE)) {
-      return 0;
-    }
-    if (Nbmodif_[col] != 0 || pos_k_.first != pos_r_.first || b->isInCheck(col)) {
-      return 0;
-    }
-
-    for (unsigned int i = 1; i < abs(max-min); i++) {
-      if (b[pos_r_.first][min+i] != NULL) {
-        return 0;
-      }
-    }
-    BasicMove *move_1 = BasicMove(pos_k_, {pos_k_.first, pos_k_.second + dir}, moved_k_);
-    if (!isLegal(move_1)) {
-      move_1->unPerform(b);
-      return 0;
-
-    } else {
-      move_1->perform(b);
-      BasicMove *move_2 = BasicMove({pos_k_.first, pos_k_.second + dir}, {pos_k_.first, pos_k_.second + 2*dir}, moved_k_);
-      if (!isLegal(move_2)) {
-        move_2->unPerform(b);
-        move_1->unPerform(b);
-        return 0;
-      }
-      move_2->unPerform(b);
-      move_1->unPerform(b);
-    }
-    return dir;
+std::string Castling::toAlgebraicNotation(int i) const {
+    return (*this).toBasicNotation();
 }
-*/
+
+std::string Castling::toBasicNotation() const {
+    std::string res;
+    Position pos_r_ = moved_r_->getPosition();
+    if (pos_r_.second == 0) {
+      res = "O-O-O";
+    } else {
+      res = "O-O";
+    }
+    return res;
+}
+
+bool Castling::doesCapture(Piece *p) const {
+    return false;
+}
+
+Position Castling::getPosition_promotion() const {
+    Position pos;
+    return pos;
+}
